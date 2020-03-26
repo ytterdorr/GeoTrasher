@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <!-- <script src="config.js"></script> -->
+    <title>Document</title>
+    <style>
+      #map {
+        height: 50vh;
+        width: 50vh;
+        max-height: 800px;
+        max-width: 800px;
+        margin: auto;
+        background-color: pink;
+      }
+
+      p {
+        margin: 2px;
+      }
+
+      .button-holder {
+        display: flex;
+        margin: auto;
+        width: 50vw;
+        max-width: 50vw;
+      }
+
+      .button-holder > button {
+        width: 200px;
+        height: 100px;
+        background-color: red;
+        border-radius: 10px;
+        color: white;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-content: center;
+        align-items: center;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>GeoTrasher</h1>
+
+      <div class="button-holder">
+        <button onclick="sendItemPosition('Nikotin')">Nikotin</button>
+        <button onclick="sendItemPosition('Annat')">Annat</button>
+      </div>
+      <p id="button-response"></p>
+      <h2>Plockade saker:</h2>
+      <p id="data-nikotin">Nikotin:</p>
+      <p id="data-annat">Annat:</p>
+      <button onclick="getData()">Get Data</button>
+      <h2>Karta</h2>
+      <div id="map"></div>
+    </div>
+
+    <script>
+      var x = document.getElementById("demo");
+      function getLocation() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+          x.innerHTML = "Geolocation is not supported by this browser.";
+        }
+      }
+
+      function showPosition(position) {
+        x.innerHTML =
+          "Latitude: " +
+          position.coords.latitude +
+          "<br>Longitude: " +
+          position.coords.longitude;
+      }
+
+      function sendItemPosition(type) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          item = {
+            type: type,
+            lat: position.coords.latitude,
+            long: position.coords.longitude
+          };
+          sendItem(item);
+        });
+      }
+
+      function displayData(data) {
+        let items = { Nikotin: 0, Annat: 0 };
+        for (let item of data) {
+          let itemType = item[0];
+          items[itemType] ? (items[itemType] += 1) : (items[itemType] = 1);
+        }
+        document.querySelector(
+          "#data-nikotin"
+        ).innerHTML = `Nikotin: ${items.Nikotin}`;
+        document.querySelector(
+          "#data-annat"
+        ).innerHTML = `Annat: ${items.Annat}`;
+      }
+
+      async function getData() {
+        // Get all the data from the database?
+        let xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            var res = JSON.parse(xhttp.response);
+            console.log(res);
+            displayData(res);
+          }
+        };
+        xhttp.open("GET", "/get_data", true);
+        xhttp.send();
+      }
+
+      async function getItemCounts() {
+        let xhttp = new XMLHttpRequest();
+      }
+
+      function sendItem(item) {
+        var xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            console.log("Sent data");
+            document.querySelector(
+              "#button-response"
+            ).innerHTML = `type: ${item.type}, lat: ${item.lat}, long: ${item.long}`;
+            getData();
+          }
+        };
+        xhttp.open("POST", "/item", true);
+        xhttp.setRequestHeader("Content-Type", "application/json");
+        xhttp.send(JSON.stringify(item));
+      }
+
+      // Get inital data
+      getData();
+    </script>
+
+    <!-- <script>
+      // This part stolen from: https://developers.google.com/maps/documentation/javascript/geolocation
+      // Note: This example requires that you consent to location sharing when
+      // prompted by your browser. If you see the error "The Geolocation service
+      // failed.", it means you probably did not give permission for the browser to
+      // locate you.
+      var map, infoWindow;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), {
+          center: { lat: -34.397, lng: 150.644 },
+          zoom: 6
+        });
+        infoWindow = new google.maps.InfoWindow();
+
+        // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            function(position) {
+              var pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              };
+
+              infoWindow.setPosition(pos);
+              infoWindow.setContent("Location found.");
+              infoWindow.open(map);
+              map.setCenter(pos);
+            },
+            function() {
+              handleLocationError(true, infoWindow, map.getCenter());
+            }
+          );
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false, infoWindow, map.getCenter());
+        }
+      }
+
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(
+          browserHasGeolocation
+            ? "Error: The Geolocation service failed."
+            : "Error: Your browser doesn't support geolocation."
+        );
+        infoWindow.open(map);
+      }
+    </script>
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDGtFwEHjqnregA-SThEQLOuiHfw-_7Ot8&callback=initMap"
+    ></script> -->
+  </body>
+</html>
