@@ -1,5 +1,6 @@
 import flask
 import sqlite3
+from gevent.pywsgi import WSGIServer
 
 from flask import Flask
 from flask import g, request, send_from_directory, json
@@ -58,4 +59,8 @@ def get_data():
   return json.dumps(items)
 
 if __name__ == "__main__":
-  app.run()
+  # app.run()
+  PORT = 5000
+  http_server = WSGIServer(('', PORT), app)
+  print("serving on port: {}".format(PORT))
+  http_server.serve_forever()
