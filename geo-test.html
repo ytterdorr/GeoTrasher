@@ -22,6 +22,8 @@
 
       .button-holder {
         display: flex;
+        align-items: center;
+        justify-content: center;
         margin: auto;
         width: 50vw;
         max-width: 50vw;
@@ -61,7 +63,16 @@
       <div id="map"></div>
     </div>
 
+    <!--  Sript code below here -->
     <script>
+      // Eventlistener for keyboard event
+      document.addEventListener("keypress", function(e) {
+        // Listen for keys A and N
+        if (e.key == "Enter") {
+          sendItemPosition("Nikotin");
+        }
+      });
+
       var x = document.getElementById("demo");
       function getLocation() {
         if (navigator.geolocation) {
