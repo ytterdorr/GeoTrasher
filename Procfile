@@ -1,1 +1,1 @@
-web: python3 app:app.py heroku ps:scale web=1
+web: python3 app.py 
