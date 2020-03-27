@@ -90,17 +90,6 @@
           position.coords.longitude;
       }
 
-      function sendItemPosition(type) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-          item = {
-            type: type,
-            lat: position.coords.latitude,
-            long: position.coords.longitude
-          };
-          sendItem(item);
-        });
-      }
-
       function displayData(data) {
         let items = { Nikotin: 0, Annat: 0 };
         for (let item of data) {
@@ -121,7 +110,6 @@
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
             var res = JSON.parse(xhttp.response);
-            console.log(res);
             displayData(res);
           }
         };
@@ -129,8 +117,48 @@
         xhttp.send();
       }
 
+      function getDate() {
+        let date,
+          time = new Date().toISOString().split("T");
+        let year,
+          month,
+          day = date.split("-");
+        let hour,
+          min,
+          sec = time.split("-");
+        let dateTime = `${year}-${month}-${day} ${hour}-${min}-${sec}`;
+        return dateTime;
+        // Replace year
+        // let d = new Date();
+        // let year = d.getFullYear();
+        // let month = d.getMonth();
+        // let day = d.getDate();
+        // let date = d.getDate();
+        // let hour = d.getHours();
+        // let min = d.getMinutes();
+        // let sec = d.getSeconds();
+      }
+
       async function getItemCounts() {
         let xhttp = new XMLHttpRequest();
+      }
+
+      function sendItemPosition(type) {
+        let dateTime = new Date()
+          .toISOString()
+          .replace("T", " ")
+          .split(".")[0];
+
+        console.log(dateTime);
+        navigator.geolocation.getCurrentPosition(function(position) {
+          item = {
+            type: type,
+            lat: position.coords.latitude,
+            long: position.coords.longitude,
+            datetime: dateTime
+          };
+          sendItem(item);
+        });
       }
 
       function sendItem(item) {

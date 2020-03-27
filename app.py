@@ -22,9 +22,8 @@ def close_connection(exception):
 
 def insert_item_in_database(item):
   cursor = get_db().cursor()
-  sql = "INSERT INTO Items (itemType, latitude, longitude) VALUES (?, ?, ?)"
-  values = (item["type"], item["lat"], item["long"])
-  print("item tuple", values)
+  sql = "INSERT INTO Items (itemType, latitude, longitude, _datetime) VALUES (?, ?, ?, ?)"
+  values = (item["type"], item["lat"], item["long"], item["datetime"])
   cursor.execute(sql, values)
   get_db().commit()
 
@@ -35,7 +34,6 @@ def get_all_items():
   cur.execute(sql)
   rows = cur.fetchall()
   cur.close()
-  print(rows)
   return rows
   
 
@@ -49,7 +47,6 @@ def hello_world():
 @app.route("/item", methods=["POST"])
 def add_item():
   item = request.get_json()
-  print("Got an item", item)
   insert_item_in_database(item)
   return "item"
 
