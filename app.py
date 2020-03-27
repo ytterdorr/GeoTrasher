@@ -1,6 +1,7 @@
 import flask
 import sqlite3
 from gevent.pywsgi import WSGIServer
+import csv
 
 from flask import Flask
 from flask import g, request, send_from_directory, json
@@ -54,6 +55,15 @@ def add_item():
 def get_data():
   items = get_all_items()
   return json.dumps(items)
+
+@app.route("/all_data.csv", methods=["GET"])
+def get_csv_data():
+  items = get_all_items()
+  with open("temp.csv", "w") as f:
+    wr = csv.writer(f)
+    wr.writerows([["type", "latitude", "longitude", "datetime"]])
+    wr.writerows(items)
+  return send_from_directory(".", "temp.csv")
 
 if __name__ == "__main__":
   # app.run()
