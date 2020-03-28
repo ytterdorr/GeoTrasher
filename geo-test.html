@@ -66,14 +66,58 @@
 
     <!--  Sript code below here -->
     <script>
+      // Key-event handlers
+      let lastKeyDown = 0;
+      let lastKeyUp = 0;
+      let doubleClickDelta = 600;
+      let listenForUp = true;
       // Eventlistener for keyboard event
-      document.addEventListener("keyup", function(e) {
+      document.addEventListener("keydown", function(e) {
+        console.log("keyDown");
         // Listen for keys A and N
         if (e.key == "Enter") {
-          sendItemPosition("Nikotin");
+          // sendItemPosition("Nikotin");
+          handleEnterClick("down");
         }
       });
 
+      document.addEventListener("keyup", function(e) {
+        console.log("keyUp");
+        handleEnterClick("up");
+      });
+
+      function waitForDoubleCLick() {
+        listenForUp = false;
+        window.setTimeout(function() {
+          console.log("lastKeyUp: ", lastKeyUp);
+          console.log("lastKeyDown: ", lastKeyDown);
+          if (lastKeyDown > lastKeyUp) {
+            sendItemPosition("Annat");
+          } else {
+            sendItemPosition("Nikotin");
+          }
+          // block timeup listener a little more,
+          // If user is holding button down when registering
+          // 2nd click
+          setTimeout(function() {
+            listenForUp = true;
+          }, 300);
+        }, doubleClickDelta);
+      }
+
+      function handleEnterClick(upOrDown) {
+        // Regist er double click if:
+        // down up down within timedelta.
+        // What of up click?
+        let now = Date.now();
+        if (upOrDown === "up" && listenForUp) {
+          lastKeyUp = now;
+          waitForDoubleCLick();
+        } else if (upOrDown === "down") {
+          lastKeyDown = now;
+        }
+        // console.log(now);
+      }
       var x = document.getElementById("demo");
       function getLocation() {
         if (navigator.geolocation) {
