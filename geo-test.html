@@ -59,7 +59,7 @@
       <p id="data-nikotin">Nikotin:</p>
       <p id="data-annat">Annat:</p>
       <button onclick="getData()">Update view</button>
-      <a href="/all_data.csv"><button>Get Data</button></a>
+      <a href="/download"><button>Download Data</button></a>
       <h2>Karta</h2>
       <div id="map"></div>
     </div>
@@ -67,7 +67,7 @@
     <!--  Sript code below here -->
     <script>
       // Eventlistener for keyboard event
-      document.addEventListener("keypress", function(e) {
+      document.addEventListener("keyup", function(e) {
         // Listen for keys A and N
         if (e.key == "Enter") {
           sendItemPosition("Nikotin");
@@ -116,6 +116,22 @@
         };
         xhttp.open("GET", "/get_data", true);
         xhttp.send();
+      }
+
+      function download(filename, text) {
+        var element = document.createElement("a");
+        element.setAttribute(
+          "href",
+          "data:text/plain;charset=utf-8," + encodeURIComponent(text)
+        );
+        element.setAttribute("download", filename);
+
+        element.style.display = "none";
+        document.body.appendChild(element);
+
+        element.click();
+
+        document.body.removeChild(element);
       }
 
       function getDate() {
