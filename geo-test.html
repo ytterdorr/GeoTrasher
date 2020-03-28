@@ -73,51 +73,49 @@
       let listenForUp = true;
       // Eventlistener for keyboard event
       document.addEventListener("keydown", function(e) {
-        console.log("keyDown");
         // Listen for keys A and N
         if (e.key == "Enter") {
           // sendItemPosition("Nikotin");
           handleEnterClick("down");
+          console.log("keyDown");
         }
       });
 
       document.addEventListener("keyup", function(e) {
-        console.log("keyUp");
-        handleEnterClick("up");
+        if (e.key === "Enter") {
+          handleEnterClick("up");
+          console.log("keyUp");
+        }
       });
 
-      function waitForDoubleCLick() {
-        listenForUp = false;
+      function checkForDoubleCLick() {
+        // Register double click if double click
+
         window.setTimeout(function() {
-          console.log("lastKeyUp: ", lastKeyUp);
-          console.log("lastKeyDown: ", lastKeyDown);
           if (lastKeyDown > lastKeyUp) {
             sendItemPosition("Annat");
           } else {
             sendItemPosition("Nikotin");
           }
-          // block timeup listener a little more,
-          // If user is holding button down when registering
-          // 2nd click
           setTimeout(function() {
+            // Some extra time to release the button
             listenForUp = true;
           }, 300);
         }, doubleClickDelta);
       }
 
       function handleEnterClick(upOrDown) {
-        // Regist er double click if:
-        // down up down within timedelta.
-        // What of up click?
         let now = Date.now();
         if (upOrDown === "up" && listenForUp) {
+          // Start listeing for doubleclick
+          listenForUp = false;
           lastKeyUp = now;
-          waitForDoubleCLick();
+          checkForDoubleCLick();
         } else if (upOrDown === "down") {
           lastKeyDown = now;
         }
-        // console.log(now);
       }
+
       var x = document.getElementById("demo");
       function getLocation() {
         if (navigator.geolocation) {
@@ -189,19 +187,6 @@
           sec = time.split("-");
         let dateTime = `${year}-${month}-${day} ${hour}-${min}-${sec}`;
         return dateTime;
-        // Replace year
-        // let d = new Date();
-        // let year = d.getFullYear();
-        // let month = d.getMonth();
-        // let day = d.getDate();
-        // let date = d.getDate();
-        // let hour = d.getHours();
-        // let min = d.getMinutes();
-        // let sec = d.getSeconds();
-      }
-
-      async function getItemCounts() {
-        let xhttp = new XMLHttpRequest();
       }
 
       function sendItemPosition(type) {
