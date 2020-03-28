@@ -1,0 +1,37 @@
+#map {
+  height: 50vh;
+  width: 50vh;
+  max-height: 800px;
+  max-width: 800px;
+  margin: auto;
+  background-color: pink;
+}
+
+p {
+  margin: 2px;
+}
+
+.button-holder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+  width: 50vw;
+  max-width: 50vw;
+}
+
+.button-holder > button {
+  width: 200px;
+  height: 100px;
+  background-color: red;
+  border-radius: 10px;
+  color: white;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+}
