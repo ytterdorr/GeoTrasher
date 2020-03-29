@@ -50,6 +50,19 @@ function handleEnterClick(upOrDown) {
 
 //// GET DATA ////
 
+function getFromServer(url, callback, cbArg = null) {
+  xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      if (cbArg !== null) {
+        callback(cbArg);
+      } else {
+        callback();
+      }
+    }
+  };
+}
+
 function displayData(data) {
   let items = { Nikotin: 0, Annat: 0 };
   for (let item of data) {
@@ -74,6 +87,27 @@ async function getData(sessionID = 0) {
     if (this.readyState == 4 && this.status == 200) {
       var res = JSON.parse(xhttp.response);
       displayData(res);
+      // return res;
+    }
+  };
+  xhttp.open("GET", req_url, true);
+  xhttp.send();
+}
+
+function displayItemCount(itemCount) {
+  document.querySelector(
+    "#data-nikotin"
+  ).innerHTML = `Nikotin: ${itemCount.Nikotin}`;
+  document.querySelector("#data-annat").innerHTML = `Annat: ${itemCount.Annat}`;
+}
+
+function getSessionItemCount(sessionID = 0) {
+  req_url = `/get_session_item_count/${sessionID}`;
+  let xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      var res = JSON.parse(xhttp.response);
+      displayItemCount(res);
       // return res;
     }
   };
@@ -130,7 +164,7 @@ function sendItem(item) {
       document.querySelector(
         "#button-response"
       ).innerHTML = `type: ${item.type}, lat: ${item.lat}, long: ${item.long}, time: ${item.datetime}`;
-      getData(sessionStorage.sessionID);
+      getSessionItemCount(sessionStorage.sessionID);
     }
   };
   xhttp.open("POST", "/item", true);
