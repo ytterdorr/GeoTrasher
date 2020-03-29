@@ -5,7 +5,7 @@ import csv
 import io
 
 from flask import Flask
-from flask import g, request, make_response, send_file, send_from_directory, json
+from flask import g, request, make_response, send_file, send_from_directory, json, render_template
 app = Flask(__name__, static_url_path="")
 
 DATABASE = "database.db"
@@ -24,8 +24,12 @@ def close_connection(exception):
 
 def insert_item_in_database(item):
   cursor = get_db().cursor()
-  sql = "INSERT INTO Items (itemType, latitude, longitude, _datetime) VALUES (?, ?, ?, ?)"
-  values = (item["type"], item["lat"], item["long"], item["datetime"])
+  if item["sessionID"]:
+    sql = "INSERT INTO Items (itemType, latitude, longitude, _datetime, sessionID) VALUES (?, ?, ?, ?, ?)"
+    values = (item["type"], item["lat"], item["long"], item["datetime"], item["sessionID"])
+  else:
+    sql = "INSERT INTO Items (itemType, latitude, longitude, _datetime) VALUES (?, ?, ?, ?)"
+    values = (item["type"], item["lat"], item["long"], item["datetime"])
   cursor.execute(sql, values)
   get_db().commit()
 
@@ -37,14 +41,33 @@ def get_all_items():
   rows = cur.fetchall()
   cur.close()
   return rows
+
+def get_session_data(sessionID): 
+  db = get_db()
+  cur = db.cursor()
+  sql = "SELECT * FROM Items WHERE sessionID={}".format(sessionID)
+  cur.execute(sql)
+  rows = cur.fetchall()
+  print("rows", rows)
+  return rows
   
+def get_latest_sessionID():
+  cur = get_db().cursor()
+  sql = "SELECT MAX(sessionID) from Items"
+  cur.execute(sql)
+  maxID = cur.fetchall()[0][0]
+  return maxID
 
 
 
 @app.route('/')
 def hello_world():
   # return "Go home"
-  return send_from_directory(".", "geo-test.html")
+  return render_template("geo-test.html")
+
+@app.route("/session")
+def session():
+  return render_template("session.html")
 
 @app.route("/item", methods=["POST"])
 def add_item():
@@ -82,6 +105,20 @@ def download():
     output.headers["Content-Disposition"] = "attachment; filename=trash_geodata.csv"
     output.headers["Content-type"] = "text/csv"
     return output
+
+@app.route("/start_session", methods=["GET"])
+def start_session():
+  latest_id = get_latest_sessionID()
+  new_id = str(int(latest_id) + 1)
+  print("latest_id", latest_id)
+
+  return new_id
+
+@app.route("/get_session_items/<sessionID>")
+def get_session_items(sessionID):
+  session_data = get_session_data(sessionID)
+  return json.dumps(session_data)
+
 
 if __name__ == "__main__":
   # app.run()

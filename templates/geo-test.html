@@ -6,22 +6,28 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <!-- <script src="config.js"></script> -->
     <title>Document</title>
-    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/main.css') }}"
+    />
   </head>
   <body>
     <div class="container">
       <h1>GeoTrasher</h1>
 
+      <a href="/session"><button type="button">New Session</button></a>
       <div class="button-holder">
-        <button onclick="sendItemPosition('Nikotin')">Nikotin</button>
-        <button onclick="sendItemPosition('Annat')">Annat</button>
+        <button type="button" onclick="sendItemPosition('Nikotin')">
+          Nikotin
+        </button>
+        <button type="button" onclick="sendItemPosition('Annat')">Annat</button>
       </div>
       <p id="button-response"></p>
       <h2>Plockade saker:</h2>
       <p id="data-nikotin">Nikotin:</p>
       <p id="data-annat">Annat:</p>
-      <button onclick="getData()">Update view</button>
-      <a href="/download"><button>Download Data</button></a>
+      <button type="button" onclick="getData()">Update view</button>
+      <a href="/download"><button type="button">Download Data</button></a>
       <h2>Karta</h2>
       <div id="map"></div>
     </div>
