@@ -136,7 +136,7 @@ def get_session_items(sessionID):
 def get_session_item_count(sessionID):
   session_data = get_session_data(sessionID)
   # Count items of types
-  items = {}
+  items = {"Nikotin": 0, "Annat": 0}
   for item in session_data:
     itemType = item[0]
     if itemType not in items.keys():

@@ -25,7 +25,7 @@
       <h2>Plockade saker:</h2>
       <p id="data-nikotin">Nikotin:</p>
       <p id="data-annat">Annat:</p>
-      <button type="button" onclick="getSessionItemCount(sessionStorage.sessionID)">
+      <button type="button" onclick="getSessionItemCount  (sessionStorage.sessionID)">
         Update view
       </button>
       <a href="" id="download-link">
@@ -69,7 +69,7 @@
           console.log("Found session ID: ", sessionStorage.sessionID);
           sID = sessionStorage.sessionID;
           setSessionID(sID);
-          getData(sID);
+          getSessionItemCount(sID);
         } else {
           let xhttp = new XMLHttpRequest();
           xhttp.onreadystatechange = function() {
