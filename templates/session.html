@@ -27,7 +27,11 @@
       <button type="button" onclick="getData(sessionStorage.sessionID)">
         Update view
       </button>
-      <a href="/download"><button type="button">Download Data</button></a>
+      <a href="" id="download-link">
+        <button type="button">
+          Download Data
+        </button></a
+      >
     </div>
 
     <script src="{{ url_for('static', filename='js/all.js') }}"></script>
@@ -43,10 +47,12 @@
         let xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
-            var res = JSON.parse(xhttp.response);
-            document.querySelector("#sessionID").innerHTML = res;
-            sessionID = res;
-            sessionStorage.sessionID = res;
+            var sID = JSON.parse(xhttp.response);
+            document.querySelector("#sessionID").innerHTML = sID;
+            document.querySelector("#download-link").href = `/download/${sID}`;
+            sessionID = sID;
+            sessionStorage.sessionID = sID;
+
             sendItemPosition("Start");
           }
         };
@@ -54,21 +60,19 @@
         xhttp.send();
       }
 
-      function getSessionData() {
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            var res = JSON.parse(xhttp.response);
-            displayData(res);
-          }
-        };
-        xhttp.open(
-          "GET",
-          `/get_session_items/${sessionStorage.sessionID}`,
-          true
-        );
-        xhttp.send();
-      }
+      // function downloadSessionData() {
+      //   let xhttp = new XMLHttpRequest();
+      //   xhttp.onreadystatechange = function() {
+      //     if (this.readyState == 4 && this.status == 200) {
+      //       var sessionItems = JSON.parse(xhttp.response);
+      //       return sessionItems;
+      //       console.log(sessionItems);
+      //       download("session_data.csv", sessionItems);
+      //     }
+      //   };
+      //   xhttp.open("GET", `/download/${sessionStorage.sessionID}`, true);
+      //   xhttp.send();
+      // }
 
       startSession();
     </script>

@@ -91,11 +91,14 @@ def get_csv_data():
     wr.writerows(items)
   return send_file("temp.csv", mimetype="text/csv")
 
-@app.route('/download')
-def download():
+@app.route('/download/<sessionID>')
+def download(sessionID):
     # Download the whole dataset as a csv file
-    items = get_all_items()
-    columns = [["type", "latitude", "longitude", "datetime"]]
+    if int(sessionID) > 0:
+      items = get_session_data(sessionID)
+    else: 
+      items = get_all_items()
+    columns = [["type", "latitude", "longitude", "datetime", "sessionID"]]
     csvList = columns + items
     print(csvList)
     si = io.StringIO()
