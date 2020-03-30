@@ -8,6 +8,8 @@ from flask import Flask
 from flask import g, request, make_response, send_file, send_from_directory, json, render_template
 app = Flask(__name__, static_url_path="")
 
+
+########## Database Interaction ############
 DATABASE = "database.db"
 
 def get_db():
@@ -45,8 +47,8 @@ def get_all_items():
 def get_session_data(sessionID): 
   db = get_db()
   cur = db.cursor()
-  sql = "SELECT * FROM Items WHERE sessionID={}".format(sessionID)
-  cur.execute(sql)
+  sql = "SELECT * FROM Items WHERE sessionID=?"
+  cur.execute(sql, [sessionID])
   rows = cur.fetchall()
   print("rows", rows)
   return rows
@@ -59,6 +61,8 @@ def get_latest_sessionID():
   return maxID
 
 
+
+##### Routing ######
 
 @app.route('/')
 def hello_world():
@@ -80,27 +84,33 @@ def get_data():
   items = get_all_items()
   return json.dumps(items)
 
-@app.route("/csv_data", methods=["GET"])
-def get_csv_data():
-  items = get_all_items()
-  print(items)
-  with open("temp.csv", "w") as f:
-    f.truncate(0)
-    wr = csv.writer(f)
-    wr.writerows([["type", "latitude", "longitude", "datetime"]])
-    wr.writerows(items)
-  return send_file("temp.csv", mimetype="text/csv")
+# @app.route("/csv_data", methods=["GET"])
+# def get_csv_data():
+#   items = get_all_items()
+#   print(items)
+#   with open("temp.csv", "w") as f:
+#     f.truncate(0)
+#     wr = csv.writer(f)
+#     wr.writerows([["type", "latitude", "longitude", "datetime"]])
+#     wr.writerows(items)
+#   return send_file("temp.csv", mimetype="text/csv")
 
 @app.route('/download/<sessionID>')
 def download(sessionID):
-    # Download the whole dataset as a csv file
+    """
+    To download the whole dataset as a csv file
+    
+    If sessionID is given, should return only specific session data
+    otherwise returns full Item database. 
+
+    """ 
     if int(sessionID) > 0:
       items = get_session_data(sessionID)
     else: 
       items = get_all_items()
+    # Prepare csv file
     columns = [["type", "latitude", "longitude", "datetime", "sessionID"]]
     csvList = columns + items
-    print(csvList)
     si = io.StringIO()
     cw = csv.writer(si)
     cw.writerows(csvList)
@@ -111,6 +121,7 @@ def download(sessionID):
 
 @app.route("/start_session", methods=["GET"])
 def start_session():
+  """ Returns a unique session ID """
   latest_id = get_latest_sessionID()
   new_id = str(int(latest_id) + 1)
   print("latest_id", latest_id)

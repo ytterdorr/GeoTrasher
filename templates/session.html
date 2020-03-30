@@ -12,6 +12,7 @@
   </head>
   <body>
     <div class="container">
+      <button type="button" onclick="endSession()">End Session</button>
       This is a session
       <p>Session nr: <span id="sessionID"></span></p>
       <div class="button-holder">
@@ -37,27 +38,45 @@
     <script src="{{ url_for('static', filename='js/all.js') }}"></script>
     <script>
       // create a new session.
-      let sessionID = 0;
+      let sessionID;
+
+      function endSession() {
+        // Clear sessionID
+        sessionID = 0;
+        sessionStorage.removeItem("sessionID");
+        // return to start page
+        window.location.href = "/";
+      }
 
       async function addItemAndUpdate(type) {
         await sendItemPosition(type);
       }
 
-      function startSession() {
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            var sID = JSON.parse(xhttp.response);
-            document.querySelector("#sessionID").innerHTML = sID;
-            document.querySelector("#download-link").href = `/download/${sID}`;
-            sessionID = sID;
-            sessionStorage.sessionID = sID;
+      function setSessionID(sID) {
+        document.querySelector("#sessionID").innerHTML = sID;
+        document.querySelector("#download-link").href = `/download/${sID}`;
+        sessionID = sID;
+        sessionStorage.sessionID = sID;
+      }
 
-            sendItemPosition("Start");
-          }
-        };
-        xhttp.open("GET", "/start_session", true);
-        xhttp.send();
+      function startSession() {
+        if (sessionStorage.sessionID) {
+          console.log("Found session ID: ", sessionStorage.sessionID);
+          sID = sessionStorage.sessionID;
+          setSessionID(sID);
+          getData(sID);
+        } else {
+          let xhttp = new XMLHttpRequest();
+          xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              var sID = JSON.parse(xhttp.response);
+              setSessionID(sID);
+              sendItemPosition("Start");
+            }
+          };
+          xhttp.open("GET", "/start_session", true);
+          xhttp.send();
+        }
       }
 
       // function downloadSessionData() {
