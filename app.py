@@ -50,7 +50,6 @@ def get_session_data(sessionID):
   sql = "SELECT * FROM Items WHERE sessionID=?"
   cur.execute(sql, [sessionID])
   rows = cur.fetchall()
-  print("rows", rows)
   return rows
   
 def get_latest_sessionID():

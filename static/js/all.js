@@ -74,6 +74,7 @@ async function getData(sessionID = 0) {
     if (this.readyState == 4 && this.status == 200) {
       var res = JSON.parse(xhttp.response);
       displayData(res);
+      // return res;
     }
   };
   xhttp.open("GET", req_url, true);

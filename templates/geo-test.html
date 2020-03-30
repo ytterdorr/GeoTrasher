@@ -26,174 +26,179 @@
       <h2>Plockade saker:</h2>
       <p id="data-nikotin">Nikotin:</p>
       <p id="data-annat">Annat:</p>
-      <button type="button" onclick="getData()">Update view</button>
+      <button type="button" onclick="updateView(0)">Update view</button>
       <a href="/download/0"><button type="button">Download Data</button></a>
       <h2>Karta</h2>
       <div id="map"></div>
     </div>
 
     <!--  Sript code below here -->
+    <script src="{{ url_for('static', filename='js/all.js') }}"></script>
     <script>
-      // Key-event handlers
-      let lastKeyDown = 0;
-      let lastKeyUp = 0;
-      let doubleClickDelta = 600;
-      let listenForUp = true;
-      // Eventlistener for keyboard event
-      document.addEventListener("keydown", function(e) {
-        // Listen for keys A and N
-        if (e.key == "Enter") {
-          // sendItemPosition("Nikotin");
-          handleEnterClick("down");
-          console.log("keyDown");
-        }
-      });
+      // // Key-event handlers
+      // let lastKeyDown = 0;
+      // let lastKeyUp = 0;
+      // let doubleClickDelta = 600;
+      // let listenForUp = true;
+      // // Eventlistener for keyboard event
+      // document.addEventListener("keydown", function(e) {
+      //   // Listen for keys A and N
+      //   if (e.key == "Enter") {
+      //     // sendItemPosition("Nikotin");
+      //     handleEnterClick("down");
+      //     console.log("keyDown");
+      //   }
+      // });
 
-      document.addEventListener("keyup", function(e) {
-        if (e.key === "Enter") {
-          handleEnterClick("up");
-          console.log("keyUp");
-        }
-      });
+      // document.addEventListener("keyup", function(e) {
+      //   if (e.key === "Enter") {
+      //     handleEnterClick("up");
+      //     console.log("keyUp");
+      //   }
+      // });
 
-      function checkForDoubleCLick() {
-        // Register double click if double click
+      // function checkForDoubleCLick() {
+      //   // Register double click if double click
 
-        window.setTimeout(function() {
-          if (lastKeyDown > lastKeyUp) {
-            sendItemPosition("Annat");
-          } else {
-            sendItemPosition("Nikotin");
-          }
-          setTimeout(function() {
-            // Some extra time to release the button
-            listenForUp = true;
-          }, 300);
-        }, doubleClickDelta);
-      }
+      //   window.setTimeout(function() {
+      //     if (lastKeyDown > lastKeyUp) {
+      //       sendItemPosition("Annat");
+      //     } else {
+      //       sendItemPosition("Nikotin");
+      //     }
+      //     setTimeout(function() {
+      //       // Some extra time to release the button
+      //       listenForUp = true;
+      //     }, 300);
+      //   }, doubleClickDelta);
+      // }
 
-      function handleEnterClick(upOrDown) {
-        let now = Date.now();
-        if (upOrDown === "up" && listenForUp) {
-          // Start listeing for doubleclick
-          listenForUp = false;
-          lastKeyUp = now;
-          checkForDoubleCLick();
-        } else if (upOrDown === "down") {
-          lastKeyDown = now;
-        }
-      }
+      // function handleEnterClick(upOrDown) {
+      //   let now = Date.now();
+      //   if (upOrDown === "up" && listenForUp) {
+      //     // Start listeing for doubleclick
+      //     listenForUp = false;
+      //     lastKeyUp = now;
+      //     checkForDoubleCLick();
+      //   } else if (upOrDown === "down") {
+      //     lastKeyDown = now;
+      //   }
+      // }
 
-      var x = document.getElementById("demo");
-      function getLocation() {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(showPosition);
-        } else {
-          x.innerHTML = "Geolocation is not supported by this browser.";
-        }
-      }
+      // var x = document.getElementById("demo");
+      // function getLocation() {
+      //   if (navigator.geolocation) {
+      //     navigator.geolocation.getCurrentPosition(showPosition);
+      //   } else {
+      //     x.innerHTML = "Geolocation is not supported by this browser.";
+      //   }
+      // }
 
-      function showPosition(position) {
-        x.innerHTML =
-          "Latitude: " +
-          position.coords.latitude +
-          "<br>Longitude: " +
-          position.coords.longitude;
-      }
+      // function showPosition(position) {
+      //   x.innerHTML =
+      //     "Latitude: " +
+      //     position.coords.latitude +
+      //     "<br>Longitude: " +
+      //     position.coords.longitude;
+      // }
 
-      function displayData(data) {
-        let items = { Nikotin: 0, Annat: 0 };
-        for (let item of data) {
-          let itemType = item[0];
-          items[itemType] ? (items[itemType] += 1) : (items[itemType] = 1);
-        }
-        document.querySelector(
-          "#data-nikotin"
-        ).innerHTML = `Nikotin: ${items.Nikotin}`;
-        document.querySelector(
-          "#data-annat"
-        ).innerHTML = `Annat: ${items.Annat}`;
-      }
+      // function displayData(data) {
+      //   let items = { Nikotin: 0, Annat: 0 };
+      //   for (let item of data) {
+      //     let itemType = item[0];
+      //     items[itemType] ? (items[itemType] += 1) : (items[itemType] = 1);
+      //   }
+      //   document.querySelector(
+      //     "#data-nikotin"
+      //   ).innerHTML = `Nikotin: ${items.Nikotin}`;
+      //   document.querySelector(
+      //     "#data-annat"
+      //   ).innerHTML = `Annat: ${items.Annat}`;
+      // }
 
-      async function getData() {
-        // Get all the data from the database?
-        let xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            var res = JSON.parse(xhttp.response);
-            displayData(res);
-          }
-        };
-        xhttp.open("GET", "/get_data", true);
-        xhttp.send();
-      }
+      // async function getData() {
+      //   // Get all the data from the database?
+      //   let xhttp = new XMLHttpRequest();
+      //   xhttp.onreadystatechange = function() {
+      //     if (this.readyState == 4 && this.status == 200) {
+      //       var res = JSON.parse(xhttp.response);
+      //       return res;
+      //     }
+      //   };
+      //   xhttp.open("GET", "/get_data", true);
+      //   xhttp.send();
+      // }
 
-      function download(filename, text) {
-        var element = document.createElement("a");
-        element.setAttribute(
-          "href",
-          "data:text/plain;charset=utf-8," + encodeURIComponent(text)
-        );
-        element.setAttribute("download", filename);
+      // function download(filename, text) {
+      //   var element = document.createElement("a");
+      //   element.setAttribute(
+      //     "href",
+      //     "data:text/plain;charset=utf-8," + encodeURIComponent(text)
+      //   );
+      //   element.setAttribute("download", filename);
 
-        element.style.display = "none";
-        document.body.appendChild(element);
+      //   element.style.display = "none";
+      //   document.body.appendChild(element);
 
-        element.click();
+      //   element.click();
 
-        document.body.removeChild(element);
-      }
+      //   document.body.removeChild(element);
+      // }
 
-      function getDate() {
-        let date,
-          time = new Date().toISOString().split("T");
-        let year,
-          month,
-          day = date.split("-");
-        let hour,
-          min,
-          sec = time.split("-");
-        let dateTime = `${year}-${month}-${day} ${hour}-${min}-${sec}`;
-        return dateTime;
-      }
+      // function getDate() {
+      //   let date,
+      //     time = new Date().toISOString().split("T");
+      //   let year,
+      //     month,
+      //     day = date.split("-");
+      //   let hour,
+      //     min,
+      //     sec = time.split("-");
+      //   let dateTime = `${year}-${month}-${day} ${hour}-${min}-${sec}`;
+      //   return dateTime;
+      // }
 
-      function sendItemPosition(type) {
-        let dateTime = new Date()
-          .toISOString()
-          .replace("T", " ")
-          .split(".")[0];
+      // function sendItemPosition(type) {
+      //   let dateTime = new Date()
+      //     .toISOString()
+      //     .replace("T", " ")
+      //     .split(".")[0];
 
-        console.log(dateTime);
-        navigator.geolocation.getCurrentPosition(function(position) {
-          item = {
-            type: type,
-            lat: position.coords.latitude,
-            long: position.coords.longitude,
-            datetime: dateTime
-          };
-          sendItem(item);
-        });
-      }
+      //   console.log(dateTime);
+      //   navigator.geolocation.getCurrentPosition(function(position) {
+      //     item = {
+      //       type: type,
+      //       lat: position.coords.latitude,
+      //       long: position.coords.longitude,
+      //       datetime: dateTime
+      //     };
+      //     sendItem(item);
+      //   });
+      // }
 
-      function sendItem(item) {
-        var xhttp = new XMLHttpRequest();
+      // function sendItem(item) {
+      //   var xhttp = new XMLHttpRequest();
 
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            console.log("Sent data");
-            document.querySelector(
-              "#button-response"
-            ).innerHTML = `type: ${item.type}, lat: ${item.lat}, long: ${item.long}`;
-            getData();
-          }
-        };
-        xhttp.open("POST", "/item", true);
-        xhttp.setRequestHeader("Content-Type", "application/json");
-        xhttp.send(JSON.stringify(item));
-      }
+      //   xhttp.onreadystatechange = function() {
+      //     if (this.readyState == 4 && this.status == 200) {
+      //       console.log("Sent data");
+      //       document.querySelector(
+      //         "#button-response"
+      //       ).innerHTML = `type: ${item.type}, lat: ${item.lat}, long: ${item.long}`;
+      //       getData();
+      //     }
+      //   };
+      //   xhttp.open("POST", "/item", true);
+      //   xhttp.setRequestHeader("Content-Type", "application/json");
+      //   xhttp.send(JSON.stringify(item));
+      // }
 
       // Get inital data
-      getData();
+      updateView();
+
+      function updateView(sessionID) {
+        getData(sessionID);
+      }
     </script>
 
     <!-- <script>
