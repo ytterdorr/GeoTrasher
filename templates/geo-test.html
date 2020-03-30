@@ -26,7 +26,9 @@
       <h2>Plockade saker:</h2>
       <p id="data-nikotin">Nikotin:</p>
       <p id="data-annat">Annat:</p>
-      <button type="button" onclick="updateView(0)">Update view</button>
+      <button type="button" onclick="updateView()">
+        Update view
+      </button>
       <a href="/download/0"><button type="button">Download Data</button></a>
       <h2>Karta</h2>
       <div id="map"></div>
@@ -196,8 +198,9 @@
       // Get inital data
       updateView();
 
-      function updateView(sessionID) {
-        getSessionItemCount(sessionID);
+      function updateView() {
+        // getSessionItemCount(sessionID);
+        updateItemCountPromise();
       }
     </script>
 
