@@ -85,20 +85,6 @@
         }
       }
 
-      // function downloadSessionData() {
-      //   let xhttp = new XMLHttpRequest();
-      //   xhttp.onreadystatechange = function() {
-      //     if (this.readyState == 4 && this.status == 200) {
-      //       var sessionItems = JSON.parse(xhttp.response);
-      //       return sessionItems;
-      //       console.log(sessionItems);
-      //       download("session_data.csv", sessionItems);
-      //     }
-      //   };
-      //   xhttp.open("GET", `/download/${sessionStorage.sessionID}`, true);
-      //   xhttp.send();
-      // }
-
       function getCoordsAndDrawMap() {
         let xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
@@ -113,6 +99,10 @@
           true
         );
         xhttp.send();
+      }
+
+      function handleLocationError() {
+        console.log("Sorry, no location error handling right now")
       }
 
       function drawMap(items) {
@@ -135,9 +125,6 @@
                 lng: position.coords.longitude
               };
 
-              infoWindow.setPosition(pos);
-              infoWindow.setContent("Location found.");
-              infoWindow.open(map);
               map.setCenter(pos);
             },
             function() {
@@ -164,35 +151,8 @@
       }
 
       var map, infoWindow;
+      /// initMap function needed for the maps API to work.
       function initMap() {
-        // map = new google.maps.Map(document.getElementById("map"), {
-        //   center: { lat: -34.397, lng: 150.644 },
-        //   zoom: 6
-        // });
-        // infoWindow = new google.maps.InfoWindow();
-
-        // // Try HTML5 geolocation.
-        // if (navigator.geolocation) {
-        //   navigator.geolocation.getCurrentPosition(
-        //     function(position) {
-        //       var pos = {
-        //         lat: position.coords.latitude,
-        //         lng: position.coords.longitude
-        //       };
-
-        //       infoWindow.setPosition(pos);
-        //       infoWindow.setContent("Location found.");
-        //       infoWindow.open(map);
-        //       map.setCenter(pos);
-        //     },
-        //     function() {
-        //       handleLocationError(true, infoWindow, map.getCenter());
-        //     }
-        //   );
-        // } else {
-        //   // Browser doesn't support Geolocation
-        //   handleLocationError(false, infoWindow, map.getCenter());
-        // }
       }
 
 
