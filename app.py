@@ -26,7 +26,7 @@ def close_connection(exception):
 
 def insert_item_in_database(item):
   cursor = get_db().cursor()
-  if item["sessionID"]:
+  if "sessionID" in item.keys():
     sql = "INSERT INTO Items (itemType, latitude, longitude, _datetime, sessionID) VALUES (?, ?, ?, ?, ?)"
     values = (item["type"], item["lat"], item["long"], item["datetime"], item["sessionID"])
   else:
