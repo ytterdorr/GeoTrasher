@@ -3,19 +3,22 @@ import sqlite3
 from gevent.pywsgi import WSGIServer
 import csv
 import io
+import os
 
 from flask import Flask
 from flask import g, request, make_response, send_file, send_from_directory, json, render_template
 app = Flask(__name__, static_url_path="")
 
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 
 ########## Database Interaction ############
-DATABASE = "database.db"
+DATABASE = os.path.join(THIS_FOLDER, "database.db")
 
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
         db = g._database = sqlite3.connect(DATABASE)
+        print("Using database", DATABASE)
     return db
 
 @app.teardown_appcontext
