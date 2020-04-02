@@ -132,12 +132,20 @@ def start_session():
 
 @app.route("/get_session_items/<sessionID>")
 def get_session_items(sessionID):
-  session_data = get_session_data(sessionID)
+  if sessionID == 0:
+    session_data = get_all_items()
+  else:
+    session_data = get_session_data(sessionID)
+  # session_data = get_session_data(sessionID)
   return json.dumps(session_data)
 
 @app.route("/get_session_item_count/<sessionID>")
 def get_session_item_count(sessionID):
-  session_data = get_session_data(sessionID)
+  if sessionID == "0":
+    print("SessionID: 0")
+    session_data = get_all_items()
+  else:
+    session_data = get_session_data(sessionID)
   # Count items of types
   items = {"Nikotin": 0, "Annat": 0}
   for item in session_data:
