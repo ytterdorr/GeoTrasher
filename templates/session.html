@@ -28,11 +28,10 @@
       <button type="button" onclick="updateItemCountPromise()">
         Update view
       </button>
-      <a href="" id="download-link">
-        <button type="button">
+        <button type="button" onclick="downloadData()">
           Download Data
-        </button></a
-      >
+        </button>
+        <input id="download-name" type="text" placeholder="file name (optional)" />
 
       <h2>Karta</h2>
       <button type="button" onclick="getCoordsAndDrawMap()">Draw Map</button>
@@ -42,6 +41,7 @@
 
     <script src="{{ url_for('static', filename='js/all.js') }}"></script>
     <script>
+
       // create a new session.
       let sessionID;
 
@@ -59,7 +59,6 @@
 
       function setSessionID(sID) {
         document.querySelector("#sessionID").innerHTML = sID;
-        document.querySelector("#download-link").href = `/download/${sID}`;
         sessionID = sID;
         sessionStorage.sessionID = sID;
       }

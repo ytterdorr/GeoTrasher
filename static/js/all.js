@@ -152,3 +152,18 @@ function sendItemPromise(item) {
       updateItemCountPromise();
     });
 }
+
+async function downloadData() {
+  // Get sessionID
+  let sessionID = 0;
+  if (sessionStorage.sessionID) {
+    sessionID = sessionStorage.sessionID;
+  }
+  let url = `/download_with_filename/${sessionID}/temp`;
+  let data = await requestPromise("GET", url);
+  // Check for filename
+  download_name = document.getElementById("download-name").value;
+  filename = download_name ? download_name + ".csv" : "GeoTrasherData.csv";
+  download(filename, data);
+  console.log("Downloaded some data");
+}

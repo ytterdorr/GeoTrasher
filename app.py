@@ -10,7 +10,7 @@ from flask import g, request, make_response, send_file, send_from_directory, jso
 app = Flask(__name__, static_url_path="")
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-
+print(THIS_FOLDER)
 ########## Database Interaction ############
 DATABASE = os.path.join(THIS_FOLDER, "database.db")
 
@@ -113,13 +113,42 @@ def download(sessionID):
     # Prepare csv file
     columns = [["type", "latitude", "longitude", "datetime", "sessionID"]]
     csvList = columns + items
-    si = io.StringIO()
-    cw = csv.writer(si)
-    cw.writerows(csvList)
-    output = make_response(si.getvalue())
-    output.headers["Content-Disposition"] = "attachment; filename=trash_geodata.csv"
-    output.headers["Content-type"] = "text/csv"
-    return output
+    # si = io.StringIO()
+    # cw = csv.writer(si)
+    # cw.writerows(csvList)
+    # output = make_response(si.getvalue())
+    # output.headers["Content-Disposition"] = "attachment; filename=trash_geodata.csv"
+    # output.headers["Content-type"] = "text/csv"
+    # return output
+
+    with open("tempfile.csv", "w") as f:
+      writer = csv.writer(f)
+      writer.writerows(csvList)
+    filepath = THIS_FOLDER + "/tempfile.csv"
+    return send_file(filepath, attachment_filename="testName.csv", as_attachment=True)
+
+@app.route('/download_with_filename/<sessionID>/<filename>')
+def download_with_filename(sessionID, filename):
+    """
+    To download the whole dataset as a csv file
+    
+    If sessionID is given, should return only specific session data
+    otherwise returns full Item database. 
+
+    """ 
+    if int(sessionID) > 0:
+      items = get_session_data(sessionID)
+    else: 
+      items = get_all_items()
+    # Prepare csv file
+    columns = [["type", "latitude", "longitude", "datetime", "sessionID"]]
+    csvList = columns + items
+
+    with open("tempfile.csv", "w") as f:
+      writer = csv.writer(f)
+      writer.writerows(csvList)
+    filepath = THIS_FOLDER + "/tempfile.csv"
+    return send_file(filepath, attachment_filename=filename, as_attachment=True)
 
 @app.route("/start_session", methods=["GET"])
 def start_session():

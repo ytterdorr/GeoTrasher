@@ -1,4 +1,5 @@
 config.js
+dbconf.json
 temp.csv
 __pycache__/
 NotesAndTodo.txt
