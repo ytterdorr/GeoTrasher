@@ -13,8 +13,7 @@
   <body>
     <div class="container">
       <button type="button" onclick="endSession()">End Session</button>
-      This is a session
-      <p>Session nr: <span id="sessionID"></span></p>
+      <h2 id="session-name">Session nr: <span id="sessionID"></span></h2>
       <div class="button-holder">
         <button type="button" onclick="addItemAndUpdate('Nikotin')">
           Nikotin
@@ -63,13 +62,21 @@
         sessionStorage.sessionID = sID;
       }
 
+      function setSessionName() {
+        console.log("set session name")
+        if (sessionStorage.sessionName) {
+          console.log("session name found")
+          document.querySelector("#session-name").innerHTML = sessionStorage.sessionName
+        }
+      }
+
       function startSession() {
         if (sessionStorage.sessionID) {
           console.log("Found session ID: ", sessionStorage.sessionID);
           sID = sessionStorage.sessionID;
           setSessionID(sID);
-          // getSessionItemCount(sID);
           updateItemCountPromise()
+          setSessionName()
         } else {
           let xhttp = new XMLHttpRequest();
           xhttp.onreadystatechange = function() {
@@ -77,6 +84,7 @@
               var sID = JSON.parse(xhttp.response);
               setSessionID(sID);
               sendItemPosition("Start");
+              setSessionName()
             }
           };
           xhttp.open("GET", "/start_session", true);

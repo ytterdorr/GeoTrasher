@@ -4,3 +4,4 @@ temp.csv
 __pycache__/
 NotesAndTodo.txt
 *.db
+*.csv

@@ -15,7 +15,9 @@
     <div class="container">
       <h1>GeoTrasher</h1>
 
-      <a href="/session"><button type="button">New Session</button></a>
+      <!-- <a href="/session"></a> -->
+      <button onclick="makeSession()" type="button">New Session</button>
+      <input id="session-name" placeholder="Session Name (optional)" />
       <div class="button-holder">
         <button type="button" onclick="sendItemPosition('Nikotin')">
           Nikotin
@@ -37,6 +39,13 @@
     <!--  Sript code below here -->
     <script src="{{ url_for('static', filename='js/all.js') }}"></script>
     <script>
+      function makeSession() {
+        text = document.querySelector("#session-name").value;
+        text = cleanInput(text);
+        sessionStorage.sessionName = text;
+        window.location += "/session";
+      }
+
       function updateView() {
         updateItemCountPromise();
       }

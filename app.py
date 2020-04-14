@@ -5,27 +5,38 @@ import csv
 import io
 import os
 
+
 from flask import Flask
 from flask import g, request, make_response, send_file, send_from_directory, json, render_template
+import database_helper as dbh
+
+
+
 app = Flask(__name__, static_url_path="")
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
-print(THIS_FOLDER)
-########## Database Interaction ############
-DATABASE = os.path.join(THIS_FOLDER, "database.db")
+# print(THIS_FOLDER)
+# ########## Database Interaction ############
+# DATABASE = os.path.join(THIS_FOLDER, "database.db")
 
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-        print("Using database", DATABASE)
-    return db
+@app.before_request
+def before_request():
+  dbh.connect_db()
+
+@app.teardown_request
+def teardown_request(exception): 
+  dbh.close_db()
 
 @app.teardown_appcontext
 def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
+  dbh.close_db()
+
+
+# @app.teardown_appcontext
+# def close_connection(exception):
+#     db = getattr(g, '_database', None)
+#     if db is not None:
+#         db.close()
 
 def insert_item_in_database(item):
   cursor = get_db().cursor()
@@ -93,12 +104,12 @@ def session():
 @app.route("/item", methods=["POST"])
 def add_item():
   item = request.get_json()
-  insert_item_in_database(item)
+  dbh.insert_item_in_database(item)
   return "item"
 
 @app.route("/get_data", methods=["GET"])
 def get_data():
-  items = get_all_items()
+  items = dbh.get_all_items()
   return json.dumps(items)
 
 # @app.route("/csv_data", methods=["GET"])
@@ -122,19 +133,12 @@ def download(sessionID):
 
     """ 
     if int(sessionID) > 0:
-      items = get_session_data(sessionID)
+      items = dbh.get_session_data(sessionID)
     else: 
-      items = get_all_items()
+      items = dbh.get_all_items()
     # Prepare csv file
     columns = [["type", "latitude", "longitude", "datetime", "sessionID"]]
     csvList = columns + items
-    # si = io.StringIO()
-    # cw = csv.writer(si)
-    # cw.writerows(csvList)
-    # output = make_response(si.getvalue())
-    # output.headers["Content-Disposition"] = "attachment; filename=trash_geodata.csv"
-    # output.headers["Content-type"] = "text/csv"
-    # return output
 
     with open("tempfile.csv", "w") as f:
       writer = csv.writer(f)
@@ -152,9 +156,9 @@ def download_with_filename(sessionID, filename):
 
     """ 
     if int(sessionID) > 0:
-      items = get_session_data(sessionID)
+      items = dbh.get_session_data(sessionID)
     else: 
-      items = get_all_items()
+      items = dbh.get_all_items()
     # Prepare csv file
     columns = [["type", "latitude", "longitude", "datetime", "sessionID"]]
     csvList = columns + items
@@ -168,7 +172,7 @@ def download_with_filename(sessionID, filename):
 @app.route("/start_session", methods=["GET"])
 def start_session():
   """ Returns a unique session ID """
-  latest_id = get_latest_sessionID()
+  latest_id = dbh.get_latest_sessionID()
   new_id = str(int(latest_id) + 1)
   print("latest_id", latest_id)
 
@@ -177,9 +181,9 @@ def start_session():
 @app.route("/get_session_items/<sessionID>")
 def get_session_items(sessionID):
   if sessionID == 0:
-    session_data = get_all_items()
+    session_data = dbh.get_all_items()
   else:
-    session_data = get_session_data(sessionID)
+    session_data = dbh.get_session_data(sessionID)
   # session_data = get_session_data(sessionID)
   return json.dumps(session_data)
 
@@ -187,9 +191,9 @@ def get_session_items(sessionID):
 def get_session_item_count(sessionID):
   if sessionID == "0":
     print("SessionID: 0")
-    session_data = get_all_items()
+    session_data = dbh.get_all_items()
   else:
-    session_data = get_session_data(sessionID)
+    session_data = dbh.get_session_data(sessionID)
   # Count items of types
   items = {"Nikotin": 0, "Annat": 0}
   for item in session_data:
@@ -201,6 +205,25 @@ def get_session_item_count(sessionID):
   print(items)
   return(items)
 
+#### user stuff
+
+def check_if_user_exists(username):
+  dbh.get_user_by_username(username)
+  pass
+
+@app.route("/sign_in", methods=["POST"])
+def sign_in():
+  # Get userdata/check if user exists
+  userData = dbh.get_user_by_username()
+  print("[sign_up] userData:", userData)
+  return_obj = {"success": True, "message": "Blaha"}
+  return json.dumps(return_obj)
+
+@app.route("/sign_up", methods=["POST"])
+def sign_up():
+
+  return_obj = {"success": True, "message": "sign Up"}
+  return json.dumps(return_obj)
 
 
 if __name__ == "__main__":

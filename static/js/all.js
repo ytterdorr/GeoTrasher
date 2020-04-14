@@ -167,3 +167,11 @@ async function downloadData() {
   download(filename, data);
   console.log("Downloaded some data");
 }
+
+function cleanInput(inputStr) {
+  console.log("cleanInput -> inputstr:", inputStr);
+  let tmp = document.createElement("div");
+  tmp.textContent = inputStr;
+  console.log("cleanInput -> tmp.innerHTML:", tmp.innerHTML);
+  return tmp.innerHTML;
+}
