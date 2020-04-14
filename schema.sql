@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS Items(
 
 CREATE TABLE IF NOT EXISTS Users(
   userName varchar not null,
-  userPass varchar not null,
+  salt varchar not null,
+  hashPass varchar not null,
   token varchar,
   primary key (userName)
 );

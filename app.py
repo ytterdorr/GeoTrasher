@@ -4,6 +4,7 @@ from gevent.pywsgi import WSGIServer
 import csv
 import io
 import os
+import bcrypt
 
 
 from flask import Flask
@@ -112,16 +113,6 @@ def get_data():
   items = dbh.get_all_items()
   return json.dumps(items)
 
-# @app.route("/csv_data", methods=["GET"])
-# def get_csv_data():
-#   items = get_all_items()
-#   print(items)
-#   with open("temp.csv", "w") as f:
-#     f.truncate(0)
-#     wr = csv.writer(f)
-#     wr.writerows([["type", "latitude", "longitude", "datetime"]])
-#     wr.writerows(items)
-#   return send_file("temp.csv", mimetype="text/csv")
 
 @app.route('/download/<sessionID>')
 def download(sessionID):
@@ -184,7 +175,6 @@ def get_session_items(sessionID):
     session_data = dbh.get_all_items()
   else:
     session_data = dbh.get_session_data(sessionID)
-  # session_data = get_session_data(sessionID)
   return json.dumps(session_data)
 
 @app.route("/get_session_item_count/<sessionID>")
@@ -213,16 +203,51 @@ def check_if_user_exists(username):
 
 @app.route("/sign_in", methods=["POST"])
 def sign_in():
+  return_obj = {"success": False, "message": "Something went wrong", "data": ""}
+  
   # Get userdata/check if user exists
-  userData = dbh.get_user_by_username()
+  username = request.json["username"]
+  password = request.json["password"]
+
+  # Check none of them is empty
+  fieldEmpty = (username == "") or (password == "")
+  if fieldEmpty:
+    return json.dumps({"success": False, "message": "Please fill in both username and password", "data": ""})
+  
+  # Check if user exists
+  userData = dbh.get_user_by_username(username)
   print("[sign_up] userData:", userData)
-  return_obj = {"success": True, "message": "Blaha"}
+  if len(userData) > 0: 
+    return_obj = {"success": True, "message": "Signing in", "data": "TODO_RANDOM_TOKEN"}
+  else:
+    return_obj = {"success": False, "message": "Username or Password incorrect", "data":""}
   return json.dumps(return_obj)
+    
 
 @app.route("/sign_up", methods=["POST"])
 def sign_up():
+  # Get user input
+  username = request.json["username"]
+  password = request.json["password"]
 
-  return_obj = {"success": True, "message": "sign Up"}
+  # Check none of them is empty
+  fieldEmpty = (username == "") or (password == "")
+  if fieldEmpty:
+    return json.dumps({"success": False, "message": "Please fill in both username and password", "data": ""})
+  
+  # Check user does not already exist
+  if dbh.check_user_exists(username):
+    return json.dumps({"success": False, "message": "User '{}' already exists".format(username), "data": ""})
+
+  # All is well, encrypt and store
+  salt = bcrypt.gensalt()
+  hashPwd = bcrypt.hashpw(password.encode('utf8'), salt)
+
+  successful_add = dbh.add_user(username, salt, hashPwd)
+  if not successful_add:
+    return json.dumps({"success": False, "message": "error when storing new user", "data": ""})
+
+  return_obj = {"success": True, "message": "sign Up", "data":""}
   return json.dumps(return_obj)
 
 

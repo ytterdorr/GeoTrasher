@@ -28,6 +28,19 @@ def get_db():
 
 #### Inserters ####
 
+def insert_into_database(sql, values=[]):
+  try:
+    cursor = get_db().cursor()
+    if len(values) == 0:
+      cursor.execute(sql)
+    else:
+      cursor.execute(sql, values)
+    get_db().commit()
+    return True
+  except Exception as e:
+    print(e)
+    return False
+
 def insert_item_in_database(item):
   try:
     cursor = get_db().cursor()
@@ -44,19 +57,23 @@ def insert_item_in_database(item):
     print(e)
     return False
 
-def add_user(username, password):
-  pass
+def add_user(username, salt, hashPass):
+  success = insert_into_database("INSERT INTO Users (userName, salt, hashPass) VALUES (?, ?, ?)", [username, salt, hashPass])
+  return success
 
 #### Getters ####
 def get_from_database(sql, values=[]):
-  db = get_db()
-  cur = db.cursor()
-  if len(values) == 0:
-    cur.execute(sql)
-  else:
-    cur.execute(sql, values)
-  rows = cur.fetchall()
-  return rows
+  try:
+    db = get_db()
+    cur = db.cursor()
+    if len(values) == 0:
+      cur.execute(sql)
+    else:
+      cur.execute(sql, values)
+    rows = cur.fetchall()
+    return rows
+  except Exception as e:
+    print(e)
 
 def get_user_by_username(username):
   rows = get_from_database("SELECT * FROM Users WHERE username=?", [username])
@@ -99,4 +116,11 @@ def check_token(token):
   if len(found) > 0:
     return True
   else: 
+    return False
+
+def check_user_exists(username):
+  rows = get_from_database("SELECT userName FROM Users WHERE username=?", [username])
+  if len(rows) > 0:
+    return True
+  else:
     return False
