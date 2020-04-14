@@ -48,7 +48,7 @@ def add_user(username, password):
   pass
 
 #### Getters ####
-def get_from_database(sql, values=[])
+def get_from_database(sql, values=[]):
   db = get_db()
   cur = db.cursor()
   if len(values) == 0:
