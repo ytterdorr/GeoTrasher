@@ -25,7 +25,7 @@ def before_request():
   dbh.connect_db()
 
 @app.teardown_request
-def teardown_request(exception): 
+def teardown_request(exception):
   dbh.close_db()
 
 @app.teardown_appcontext
@@ -59,14 +59,14 @@ def get_all_items():
   cur.close()
   return rows
 
-def get_session_data(sessionID): 
+def get_session_data(sessionID):
   db = get_db()
   cur = db.cursor()
   sql = "SELECT * FROM Items WHERE sessionID=?"
   cur.execute(sql, [sessionID])
   rows = cur.fetchall()
   return rows
-  
+
 def get_latest_sessionID():
   cur = get_db().cursor()
   sql = "SELECT MAX(sessionID) from Items"
@@ -118,14 +118,14 @@ def get_data():
 def download(sessionID):
     """
     To download the whole dataset as a csv file
-    
-    If sessionID is given, should return only specific session data
-    otherwise returns full Item database. 
 
-    """ 
+    If sessionID is given, should return only specific session data
+    otherwise returns full Item database.
+
+    """
     if int(sessionID) > 0:
       items = dbh.get_session_data(sessionID)
-    else: 
+    else:
       items = dbh.get_all_items()
     # Prepare csv file
     columns = [["type", "latitude", "longitude", "datetime", "sessionID"]]
@@ -141,14 +141,14 @@ def download(sessionID):
 def download_with_filename(sessionID, filename):
     """
     To download the whole dataset as a csv file
-    
-    If sessionID is given, should return only specific session data
-    otherwise returns full Item database. 
 
-    """ 
+    If sessionID is given, should return only specific session data
+    otherwise returns full Item database.
+
+    """
     if int(sessionID) > 0:
       items = dbh.get_session_data(sessionID)
-    else: 
+    else:
       items = dbh.get_all_items()
     # Prepare csv file
     columns = [["type", "latitude", "longitude", "datetime", "sessionID"]]
@@ -204,7 +204,7 @@ def check_if_user_exists(username):
 @app.route("/sign_in", methods=["POST"])
 def sign_in():
   return_obj = {"success": False, "message": "Something went wrong", "data": ""}
-  
+
   # Get userdata/check if user exists
   username = request.json["username"]
   password = request.json["password"]
@@ -213,22 +213,22 @@ def sign_in():
   fieldEmpty = (username == "") or (password == "")
   if fieldEmpty:
     return json.dumps({"success": False, "message": "Please fill in both username and password", "data": ""})
-  
+
   # Check if user exists, get salt
-  saltHash = dbh.get_from_database("SELECT salt, hashPass FROM USERS WHERE userName=?", [username])[0]
+  saltHash = dbh.get_from_database("SELECT salt, hashPass FROM USERS WHERE userName=?", [username])
   print("[Sign in] saltHash:", saltHash)
   if len(saltHash) == 0:
     return json.dumps({"success": False, "message": "Username or Password incorrect", "data":""})
-  salt = saltHash[0]
-  passHash = saltHash[1]
-  
+  salt = saltHash[0][0]
+  passHash = saltHash[0][1]
+
   # Check hashing
   if bcrypt.hashpw(password.encode("utf8"), salt) != passHash:
     return json.dumps({"success": False, "message": "Username or Password incorrect", "data":""})
 
   return_obj = {"success": True, "message": "Signing in", "data": "TODO_RANDOM_TOKEN"}
   return json.dumps(return_obj)
-    
+
 
 @app.route("/sign_up", methods=["POST"])
 def sign_up():
@@ -240,7 +240,7 @@ def sign_up():
   fieldEmpty = (username == "") or (password == "")
   if fieldEmpty:
     return json.dumps({"success": False, "message": "Please fill in both username and password", "data": ""})
-  
+
   # Check user does not already exist
   if dbh.check_user_exists(username):
     return json.dumps({"success": False, "message": "User '{}' already exists".format(username), "data": ""})
