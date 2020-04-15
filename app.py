@@ -155,7 +155,7 @@ def download_with_filename(sessionID, filename):
     columns = [["type", "latitude", "longitude", "datetime", "sessionID"]]
     csvList = columns + items
 
-    with open("tempfile.csv", "w") as f:
+    with open(THIS_FOLDER + "/tempfile.csv", "w") as f:
       writer = csv.writer(f)
       writer.writerows(csvList)
     filepath = THIS_FOLDER + "/tempfile.csv"
