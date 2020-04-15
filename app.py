@@ -5,6 +5,7 @@ import csv
 import io
 import os
 import bcrypt
+import secrets
 
 
 from flask import Flask
@@ -226,7 +227,15 @@ def sign_in():
   if bcrypt.hashpw(password.encode("utf8"), salt) != passHash:
     return json.dumps({"success": False, "message": "Username or Password incorrect", "data":""})
 
-  return_obj = {"success": True, "message": "Signing in", "data": "TODO_RANDOM_TOKEN"}
+
+  # Create token
+  token = secrets.token_hex(16)
+  insertSuccess = dbh.insert_into_database("UPDATE Users SET token=? WHERE userName=?", [token, username])
+  if not insertSuccess:
+    return json.dumps({"success": False, "message": "Error updating database", "data":""})
+
+
+  return_obj = {"success": True, "message": "Signing in", "data": token}
   return json.dumps(return_obj)
 
 
