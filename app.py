@@ -214,13 +214,19 @@ def sign_in():
   if fieldEmpty:
     return json.dumps({"success": False, "message": "Please fill in both username and password", "data": ""})
   
-  # Check if user exists
-  userData = dbh.get_user_by_username(username)
-  print("[sign_up] userData:", userData)
-  if len(userData) > 0: 
-    return_obj = {"success": True, "message": "Signing in", "data": "TODO_RANDOM_TOKEN"}
-  else:
-    return_obj = {"success": False, "message": "Username or Password incorrect", "data":""}
+  # Check if user exists, get salt
+  saltHash = dbh.get_from_database("SELECT salt, hashPass FROM USERS WHERE userName=?", [username])[0]
+  print("[Sign in] saltHash:", saltHash)
+  if len(saltHash) == 0:
+    return json.dumps({"success": False, "message": "Username or Password incorrect", "data":""})
+  salt = saltHash[0]
+  passHash = saltHash[1]
+  
+  # Check hashing
+  if bcrypt.hashpw(password.encode("utf8"), salt) != passHash:
+    return json.dumps({"success": False, "message": "Username or Password incorrect", "data":""})
+
+  return_obj = {"success": True, "message": "Signing in", "data": "TODO_RANDOM_TOKEN"}
   return json.dumps(return_obj)
     
 
