@@ -18,7 +18,7 @@ import database_helper as dbh
 
 app = Flask(__name__, static_url_path="")
 cors = CORS(app)
-# app.config['CORS_HEADERS'] = ['Content-Type', 'Authorization', 'Accept']
+app.config['CORS_HEADERS'] = ['Content-Type', 'Authorization', 'Accept']
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 # print(THIS_FOLDER)
