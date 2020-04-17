@@ -10,11 +10,15 @@ import secrets
 
 from flask import Flask
 from flask import g, request, make_response, send_file, send_from_directory, json, render_template
+from flask_cors import CORS, cross_origin
+
 import database_helper as dbh
 
 
 
 app = Flask(__name__, static_url_path="")
+cors = CORS(app)
+# app.config['CORS_HEADERS'] = ['Content-Type', 'Authorization', 'Accept']
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 # print(THIS_FOLDER)
@@ -40,55 +44,53 @@ def close_connection(exception):
 #     if db is not None:
 #         db.close()
 
-def insert_item_in_database(item):
-  cursor = get_db().cursor()
-  if "sessionID" in item.keys():
-    sql = "INSERT INTO Items (itemType, latitude, longitude, _datetime, sessionID) VALUES (?, ?, ?, ?, ?)"
-    values = (item["type"], item["lat"], item["long"], item["datetime"], item["sessionID"])
-  else:
-    sql = "INSERT INTO Items (itemType, latitude, longitude, _datetime) VALUES (?, ?, ?, ?)"
-    values = (item["type"], item["lat"], item["long"], item["datetime"])
-  cursor.execute(sql, values)
-  get_db().commit()
+# def insert_item_in_database(item):
+#   cursor = get_db().cursor()
+#   if "sessionID" in item.keys():
+#     sql = "INSERT INTO Items (itemType, latitude, longitude, _datetime, sessionID) VALUES (?, ?, ?, ?, ?)"
+#     values = (item["type"], item["lat"], item["long"], item["datetime"], item["sessionID"])
+#   else:
+#     sql = "INSERT INTO Items (itemType, latitude, longitude, _datetime) VALUES (?, ?, ?, ?)"
+#     values = (item["type"], item["lat"], item["long"], item["datetime"])
+#   cursor.execute(sql, values)
+#   get_db().commit()
 
-def get_all_items():
-  db = get_db()
-  cur = db.cursor()
-  sql = "SELECT * FROM Items"
-  cur.execute(sql)
-  rows = cur.fetchall()
-  cur.close()
-  return rows
+# def get_all_items():
+#   db = get_db()
+#   cur = db.cursor()
+#   sql = "SELECT * FROM Items"
+#   cur.execute(sql)
+#   rows = cur.fetchall()
+#   cur.close()
+#   return rows
 
-def get_session_data(sessionID):
-  db = get_db()
-  cur = db.cursor()
-  sql = "SELECT * FROM Items WHERE sessionID=?"
-  cur.execute(sql, [sessionID])
-  rows = cur.fetchall()
-  return rows
+# def get_session_data(sessionID):
+#   db = get_db()
+#   cur = db.cursor()
+#   sql = "SELECT * FROM Items WHERE sessionID=?"
+#   cur.execute(sql, [sessionID])
+#   rows = cur.fetchall()
+#   return rows
 
-def get_latest_sessionID():
-  cur = get_db().cursor()
-  sql = "SELECT MAX(sessionID) from Items"
-  cur.execute(sql)
-  maxID = cur.fetchall()[0][0]
-  return maxID
+# def get_latest_sessionID():
+#   cur = get_db().cursor()
+#   sql = "SELECT MAX(sessionID) from Items"
+#   cur.execute(sql)
+#   maxID = cur.fetchall()[0][0]
+#   return maxID
 
 
 ##### CORS ######
+# def add_cors_headers(response):
+#     response.headers['Access-Control-Allow-Origin'] = '*'
+#     if request.method == 'OPTIONS':
+#         response.headers['Access-Control-Allow-Methods'] = 'DELETE, GET, POST, PUT'
+#         headers = request.headers.get('Access-Control-Request-Headers')
+#         if headers:
+#             response.headers['Access-Control-Allow-Headers'] = headers
+#     return response
 
-def add_cors_headers(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    if request.method == 'OPTIONS':
-        response.headers['Access-Control-Allow-Methods'] = 'DELETE, GET, POST, PUT'
-        headers = request.headers.get('Access-Control-Request-Headers')
-        if headers:
-            response.headers['Access-Control-Allow-Headers'] = headers
-    return response
-
-app.after_request(add_cors_headers)
-
+# app.after_request(add_cors_headers)
 
 
 
@@ -277,6 +279,49 @@ def dump_data():
   success = dbh.insert_item_dump(data)
   return json.dumps({"success": success})
 
+
+""" How do I get this to accept token in headers?"""
+@app.route("/user_sessions/<username>/", methods=["GET"])
+# @cross_origin(origin='*',headers=['Content-Type','Authorization','Redirect'])
+def get_user_sessions(username):
+  # Check user auth
+  print(request)
+  # tokenSuccess = dbh.check_user_token(username, token)
+  # if tokenSuccess == False:
+  #   return json.dumps({"success": False, "message": "Authorization fail. Get a new token.", "data": []})
+
+  #### Get user data
+  receivedData = dbh.get_user_sessions_numbers_and_names(username)
+  print (receivedData)
+
+  sendData = []
+  for sID, sName in receivedData:
+    # Get items
+    items = dbh.get_items_by_session_number(sID)
+
+    # Make session name
+    sessionName = sName
+    if sessionName == None or sessionName == "":
+      sessionName = "Session {}".format(sID)
+
+    # Get item count
+    itemCountDict = count_items(items)
+    print(itemCountDict)
+
+    sendData.append({ "title": sessionName, "data": items, "itemCount": itemCountDict })
+
+  success = True
+  return json.dumps({"success": success, "message": "Session Data", "data": sendData})
+
+def count_items(item_list):
+  counterDict = {}
+  for item in item_list:
+    item_type = item[0]
+    if item_type not in counterDict:
+      counterDict[item_type] = 1
+    else:
+      counterDict[item_type] += 1
+  return counterDict
 
 if __name__ == "__main__":
   # app.run()

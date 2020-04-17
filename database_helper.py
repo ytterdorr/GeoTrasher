@@ -6,6 +6,7 @@ THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 # print(THIS_FOLDER)
 ########## Database Interaction ############
 DATABASE = os.path.join(THIS_FOLDER, "database.db")
+# DATABASE = os.path.join(THIS_FOLDER, "Experiments/pyany_database.db")
 
 
 def connect_db():
@@ -130,9 +131,17 @@ def get_latest_sessionID():
   maxID = cur.fetchall()[0][0]
   return maxID
 
+def get_user_sessions_numbers_and_names(username):
+  rows = get_from_database("SELECT sessionID, sessionName FROM UserSessions WHERE userName=?", [username])
+  return rows
+
+def get_items_by_session_number(sessionID):
+  items = get_from_database("SELECT * FROM Items WHERE sessionID=?", [sessionID])
+  return items
+
 
 ##### Checkers #####
-def check_token(token):
+def check_user_token(username, token):
   cur = get_db().cursor()
   sql = "SELECT * from Users WHERE token=(?)"
   cur.execute(sql, [token])
