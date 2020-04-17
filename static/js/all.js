@@ -4,7 +4,7 @@ let lastKeyUp = 0;
 let doubleClickDelta = 600;
 let listenForUp = true;
 // Eventlistener for keyboard event
-document.addEventListener("keydown", function(e) {
+document.addEventListener("keydown", function (e) {
   // Listen for Enter key
   if (e.key == "Enter") {
     handleEnterClick("down");
@@ -12,7 +12,7 @@ document.addEventListener("keydown", function(e) {
   }
 });
 
-document.addEventListener("keyup", function(e) {
+document.addEventListener("keyup", function (e) {
   if (e.key === "Enter") {
     handleEnterClick("up");
     console.log("keyUp");
@@ -21,13 +21,13 @@ document.addEventListener("keyup", function(e) {
 
 function checkForDoubleCLick() {
   // Register double click if double click
-  window.setTimeout(function() {
+  window.setTimeout(function () {
     if (lastKeyDown > lastKeyUp) {
       sendItemPosition("Annat");
     } else {
       sendItemPosition("Nikotin");
     }
-    setTimeout(function() {
+    setTimeout(function () {
       // Some extra time to release the button
       listenForUp = true;
     }, 300);
@@ -42,16 +42,15 @@ function handleEnterClick(upOrDown) {
     lastKeyUp = now;
     checkForDoubleCLick();
   } else if (upOrDown === "down") {
-    lastKeyDown = now;
   }
 }
 
 /// Request handling /////
 
 function requestPromise(method, url, data = {}) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     let req = new XMLHttpRequest();
-    req.onreadystatechange = function() {
+    req.onreadystatechange = function () {
       if (req.readyState == 4) {
         if (req.status == 200) {
           resolve(req.responseText);
@@ -88,8 +87,8 @@ function updateItemCountPromise() {
   let sID = sessionStorage.sessionID ? sessionStorage.sessionID : "0";
   req_url = `/get_session_item_count/${sID}`;
   requestPromise("GET", req_url)
-    .then(result => JSON.parse(result))
-    .then(result => {
+    .then((result) => JSON.parse(result))
+    .then((result) => {
       displayItemCount(result);
     });
 }
@@ -110,22 +109,19 @@ function download(filename, text) {
 ///// Send data to database /////
 
 function getUTCDate() {
-  return new Date()
-    .toISOString()
-    .replace("T", " ")
-    .split(".")[0];
+  return new Date().toISOString().replace("T", " ").split(".")[0];
 }
 
 function sendItemPosition(type) {
   let dateTime = getUTCDate();
   console.log(dateTime);
-  navigator.geolocation.getCurrentPosition(function(position) {
+  navigator.geolocation.getCurrentPosition(function (position) {
     item = {
       type: type,
       lat: position.coords.latitude,
       long: position.coords.longitude,
       datetime: dateTime,
-      sessionID: sessionStorage.sessionID ? sessionStorage.sessionID : 0
+      sessionID: sessionStorage.sessionID ? sessionStorage.sessionID : 0,
     };
     sendItemPromise(item);
   });

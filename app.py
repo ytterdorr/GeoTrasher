@@ -161,13 +161,15 @@ def download_with_filename(sessionID, filename):
     filepath = THIS_FOLDER + "/tempfile.csv"
     return send_file(filepath, attachment_filename=filename, as_attachment=True)
 
-@app.route("/start_session", methods=["GET"])
-def start_session():
+@app.route("/start_session/<username>", methods=["GET"])
+def start_session(username):
+  if username == "" or username == None:
+    username == "Anonymous"
   """ Returns a unique session ID """
   latest_id = dbh.get_latest_sessionID()
   new_id = str(int(latest_id) + 1)
-  print("latest_id", latest_id)
-
+  dbh.register_new_session(new_id)
+  dbh.register_user_session(username, new_id)
   return new_id
 
 @app.route("/get_session_items/<sessionID>")
@@ -264,6 +266,16 @@ def sign_up():
 
   return_obj = {"success": True, "message": "sign Up", "data":""}
   return json.dumps(return_obj)
+
+@app.route("/dump_data", methods=["POST"])
+def dump_data():
+  """ 
+    Takes a json object that looks like this:
+    { data: [[type, lat, lng, time, sessionID], ...]}
+  """
+  data = request.json["data"]
+  success = dbh.insert_item_dump(data)
+  return json.dumps({"success": success})
 
 
 if __name__ == "__main__":

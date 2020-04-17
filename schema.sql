@@ -14,13 +14,15 @@ CREATE TABLE IF NOT EXISTS Users(
   userName varchar not null,
   salt varchar not null,
   hashPass varchar not null,
+  settings varchar DEFAULT "{}",
   token varchar,
   primary key (userName)
 );
 
 CREATE TABLE IF NOT EXISTS UserSessions(
   userName varchar,
-  sessionID int
+  sessionID int,
+  sessionName varchar
 );
 
 -- INSERT INTO Items VALUES ("Test", "123456", "1234567", "00-00-00 00-00-00", 1);

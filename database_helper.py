@@ -57,9 +57,34 @@ def insert_item_in_database(item):
     print(e)
     return False
 
+def register_new_session(new_id):
+  success =  insert_into_database("INSERT INTO Items (itemType, sessionID) VALUES (?, ?)", ["New Session", new_id])
+  return success
+
+def register_user_session(username, session_id):
+  success = insert_into_database("INSERT INTO UserSessions (userName, sessionID) VALUES (?,?)", [username, session_id])
+
 def add_user(username, salt, hashPass):
   success = insert_into_database("INSERT INTO Users (userName, salt, hashPass) VALUES (?, ?, ?)", [username, salt, hashPass])
   return success
+
+def insert_item_dump(itemList):
+  """ 
+  Insert a big list of items
+  Each item is itself a list
+  [type, lat, lng, datetime, sessionID]
+  """
+  print("[dhb insert dump]: Received data:", itemList)
+  try:
+    cursor = get_db().cursor()
+    sql = "INSERT INTO Items (itemType, latitude, longitude, _datetime, sessionID) VALUES (?,?,?,?,?)"
+    for item in itemList:
+      cursor.execute(sql, item)
+    get_db().commit()
+    return True
+  except Exception as e:
+    print(e)
+    return False
 
 #### Getters ####
 def get_from_database(sql, values=[]):
