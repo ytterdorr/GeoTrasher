@@ -239,12 +239,8 @@ def dump_data():
 @app.route("/user_sessions/<username>/", methods=["GET"])
 # @cross_origin(origin='*',headers=['Content-Type','Authorization','Redirect'])
 def get_user_sessions(username):
-  # Check user auth
-  print(request)
-  # tokenSuccess = dbh.check_user_token(username, token)
-  # if tokenSuccess == False:
-  #   return json.dumps({"success": False, "message": "Authorization fail. Get a new token.", "data": []})
-
+  # TODO Check user auth
+  # print(request)
   #### Get user data
   receivedData = dbh.get_user_sessions_numbers_and_names(username)
   print (receivedData)
@@ -261,9 +257,9 @@ def get_user_sessions(username):
 
     # Get item count
     itemCountDict = count_items(items)
-    print(itemCountDict)
+    # print(itemCountDict)
 
-    sendData.append({ "title": sessionName, "data": items, "itemCount": itemCountDict })
+    sendData.append({ "title": sessionName, "data": items, "itemCount": itemCountDict, "sessionID": sID })
 
   success = True
   return json.dumps({"success": success, "message": "Session Data", "data": sendData})
