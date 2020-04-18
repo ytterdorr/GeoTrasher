@@ -38,7 +38,7 @@ def close_connection(exception):
 
 ##### CORS ######
 @app.after_request
-def add_cors_headers(response):
+def after_request(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     if request.method == 'OPTIONS':
         response.headers['Access-Control-Allow-Methods'] = 'DELETE, GET, POST, PUT'
@@ -277,6 +277,19 @@ def count_items(item_list):
     else:
       counterDict[item_type] += 1
   return counterDict
+
+@app.route("/update_session_name", methods=["POST"])
+def update_session_name():
+  """ Expects json object: {sessionID, newName} """
+  sessionID = request.json["sessionID"]
+  newName = request.json["newName"]
+  print("Naming session {} to {}".format(sessionID, newName))
+  success = dbh.update_session_name(sessionID, newName)
+  print("Naming success: ", success)
+  if success:
+    return json.dumps({"success": success, "message": "Updated session {} name to {}".format(sessionID, newName)})
+  else: 
+    return json.dumps({"success": success, "message": "Failed when updating session name"})
 
 if __name__ == "__main__":
   # app.run()

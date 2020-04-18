@@ -87,6 +87,10 @@ def insert_item_dump(itemList):
     print(e)
     return False
 
+def update_session_name(sessionID, newName):
+  success = insert_into_database("UPDATE UserSessions SET sessionName=? WHERE sessionID=?", [newName, sessionID])
+  return success
+
 #### Getters ####
 def get_from_database(sql, values=[]):
   try:
