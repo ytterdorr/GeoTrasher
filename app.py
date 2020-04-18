@@ -17,8 +17,6 @@ import database_helper as dbh
 
 
 app = Flask(__name__, static_url_path="")
-# cors = CORS(app)
-# app.config['CORS_HEADERS'] = ['Content-Type', 'Authorization', 'Accept']
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 # print(THIS_FOLDER)
@@ -38,51 +36,9 @@ def close_connection(exception):
   dbh.close_db()
 
 
-# @app.teardown_appcontext
-# def close_connection(exception):
-#     db = getattr(g, '_database', None)
-#     if db is not None:
-#         db.close()
-
-# def insert_item_in_database(item):
-#   cursor = get_db().cursor()
-#   if "sessionID" in item.keys():
-#     sql = "INSERT INTO Items (itemType, latitude, longitude, _datetime, sessionID) VALUES (?, ?, ?, ?, ?)"
-#     values = (item["type"], item["lat"], item["long"], item["datetime"], item["sessionID"])
-#   else:
-#     sql = "INSERT INTO Items (itemType, latitude, longitude, _datetime) VALUES (?, ?, ?, ?)"
-#     values = (item["type"], item["lat"], item["long"], item["datetime"])
-#   cursor.execute(sql, values)
-#   get_db().commit()
-
-# def get_all_items():
-#   db = get_db()
-#   cur = db.cursor()
-#   sql = "SELECT * FROM Items"
-#   cur.execute(sql)
-#   rows = cur.fetchall()
-#   cur.close()
-#   return rows
-
-# def get_session_data(sessionID):
-#   db = get_db()
-#   cur = db.cursor()
-#   sql = "SELECT * FROM Items WHERE sessionID=?"
-#   cur.execute(sql, [sessionID])
-#   rows = cur.fetchall()
-#   return rows
-
-# def get_latest_sessionID():
-#   cur = get_db().cursor()
-#   sql = "SELECT MAX(sessionID) from Items"
-#   cur.execute(sql)
-#   maxID = cur.fetchall()[0][0]
-#   return maxID
-
-
 ##### CORS ######
 @app.after_request
-def after_request(response):
+def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     if request.method == 'OPTIONS':
         response.headers['Access-Control-Allow-Methods'] = 'DELETE, GET, POST, PUT'
@@ -90,7 +46,6 @@ def after_request(response):
         if headers:
             response.headers['Access-Control-Allow-Headers'] = headers
     return response
-
 
 
 
@@ -271,7 +226,7 @@ def sign_up():
 
 @app.route("/dump_data", methods=["POST"])
 def dump_data():
-  """
+  """ 
     Takes a json object that looks like this:
     { data: [[type, lat, lng, time, sessionID], ...]}
   """
