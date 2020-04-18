@@ -10,15 +10,15 @@ import secrets
 
 from flask import Flask
 from flask import g, request, make_response, send_file, send_from_directory, json, render_template
-from flask_cors import CORS, cross_origin
+# from flask_cors import CORS, cross_origin
 
 import database_helper as dbh
 
 
 
 app = Flask(__name__, static_url_path="")
-cors = CORS(app)
-app.config['CORS_HEADERS'] = ['Content-Type', 'Authorization', 'Accept']
+# cors = CORS(app)
+# app.config['CORS_HEADERS'] = ['Content-Type', 'Authorization', 'Accept']
 
 THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
 # print(THIS_FOLDER)
@@ -81,7 +81,8 @@ def close_connection(exception):
 
 
 ##### CORS ######
-def add_cors_headers(response):
+@app.after_request
+def after_request(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
     if request.method == 'OPTIONS':
         response.headers['Access-Control-Allow-Methods'] = 'DELETE, GET, POST, PUT'
@@ -90,7 +91,6 @@ def add_cors_headers(response):
             response.headers['Access-Control-Allow-Headers'] = headers
     return response
 
-app.after_request(add_cors_headers)
 
 
 
@@ -271,7 +271,7 @@ def sign_up():
 
 @app.route("/dump_data", methods=["POST"])
 def dump_data():
-  """ 
+  """
     Takes a json object that looks like this:
     { data: [[type, lat, lng, time, sessionID], ...]}
   """
